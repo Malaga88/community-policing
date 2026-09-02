@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report an Incident — GubiWatch</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/report.css">
+</head>
+<body>
+
+  <header class="radar-bg header-slim">
+    <nav class="site-nav">
+      <div class="wrap">
+        <a href="index.html" class="brand"><span class="brand-dot"></span>GubiWatch <small>ATBU&nbsp;GUBI&nbsp;CAMPUS</small></a>
+        <ul class="nav-links" role="list">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="report.html" class="current">Report an incident</a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="wrap header-slim-copy">
+      <p class="eyebrow">Report an incident</p>
+      <h1>Tell us what you saw.</h1>
+      <p class="text-muted-light">It takes under a minute. Nothing here is verified before it reaches the dashboard, so keep it factual.</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="report-section">
+      <div class="wrap">
+        <p class="submit-error" id="submit-error" hidden></p>
+      </div>
+      <div class="wrap report-layout">
+
+        <!-- ============ Form ============ -->
+        <form id="report-form" class="report-form" novalidate>
+
+          <div class="field-group">
+            <span class="field-label">What kind of incident is this?</span>
+            <div class="category-picker" role="radiogroup" aria-label="Incident category">
+              <label class="category-option cat-theft-option">
+                <input type="radio" name="category" value="theft" required>
+                <span class="cat-badge cat-theft"><span class="dot"></span>Theft</span>
+              </label>
+              <label class="category-option cat-harassment-option">
+                <input type="radio" name="category" value="harassment">
+                <span class="cat-badge cat-harassment"><span class="dot"></span>Harassment</span>
+              </label>
+              <label class="category-option cat-hazard-option">
+                <input type="radio" name="category" value="hazard">
+                <span class="cat-badge cat-hazard"><span class="dot"></span>Safety hazard</span>
+              </label>
+              <label class="category-option cat-suspicious-option">
+                <input type="radio" name="category" value="suspicious">
+                <span class="cat-badge cat-suspicious"><span class="dot"></span>Suspicious activity</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="location">Where did this happen?</label>
+            <input type="text" id="location" name="location" class="text-input"
+                   placeholder="e.g. Behind Hostel C, near the generator house" required>
+            <button type="button" class="location-btn" id="use-location-btn">
+              📍 Use my current location
+            </button>
+            <p class="location-status" id="location-status" hidden></p>
+            <input type="hidden" name="lat" id="lat-value">
+            <input type="hidden" name="lng" id="lng-value">
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="description">What happened?</label>
+            <textarea id="description" name="description" class="text-input" rows="5"
+                      placeholder="Describe what you saw or experienced — the more specific, the more useful this is to other students." required></textarea>
+          </div>
+
+          <div class="field-group">
+            <span class="field-label">How should this be reported?</span>
+            <div class="identity-toggle" id="identity-toggle" role="radiogroup" aria-label="Reporting identity">
+              <button type="button" class="identity-option is-active" data-value="named" aria-pressed="true">
+                <strong>Report as myself</strong>
+                <span>Your name stays attached to this report</span>
+              </button>
+              <button type="button" class="identity-option" data-value="anonymous" aria-pressed="false">
+                <strong>Report anonymously</strong>
+                <span>No identifying information is stored</span>
+              </button>
+            </div>
+            <input type="hidden" name="identity" id="identity-value" value="named">
+          </div>
+
+          <div class="field-group named-only" id="name-field-group">
+            <label class="field-label" for="reporter-name">Your name</label>
+            <input type="text" id="reporter-name" name="reporterName" class="text-input" placeholder="Full name">
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">Submit report</button>
+          <p class="form-note">This is currently a front-end demo — submitting shows a preview of what gets sent, using placeholder data in place of a live database.</p>
+        </form>
+
+        <!-- ============ Live preview ============ -->
+        <aside class="report-preview">
+          <p class="eyebrow">Live preview</p>
+          <p class="text-muted" style="margin-bottom:18px;">This is roughly how your report will appear on the shared dashboard.</p>
+          <div class="preview-card" id="preview-card">
+            <div class="preview-card-head">
+              <span class="cat-badge cat-theft" id="preview-badge"><span class="dot"></span>Theft</span>
+              <span class="hero-card-time">Just now</span>
+            </div>
+            <p class="preview-card-body" id="preview-body">Your description will appear here as you type…</p>
+            <div class="hero-card-foot">
+              <span id="preview-location">📍 Location will appear here</span>
+              <span class="hero-card-anon" id="preview-identity">Reported as myself</span>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </section>
+
+    <!-- ============ Success state ============ -->
+    <section class="report-success" id="report-success" hidden>
+      <div class="wrap success-inner">
+        <span class="success-check">✓</span>
+        <h2>Report received.</h2>
+        <p class="text-muted">Thank you — this report would now be visible on the shared dashboard for other students to see.</p>
+        <div class="hero-actions" style="justify-content:center;">
+          <a href="dashboard.html" class="btn btn-primary">View the dashboard →</a>
+          <button type="button" class="btn btn-outline" id="report-another">Report another incident</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer radar-bg">
+    <div class="wrap">
+      <span>GubiWatch — a final year project for ATBU Gubi Campus</span>
+      <span>Built by students, for students</span>
+    </div>
+  </footer>
+
+  <script src="js/report.js"></script>
+</body>
+</html>

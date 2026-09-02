@@ -1,0 +1,218 @@
+/* ===========================================================
+   dashboard.html
+   =========================================================== */
+
+.header-slim { padding-bottom: 4px; }
+.header-slim-copy { position: relative; z-index: 2; padding: 8px 0 46px; max-width: 60ch; }
+.header-slim-copy h1 { color: #fff; font-size: clamp(1.8rem, 3vw, 2.4rem); margin-bottom: 10px; }
+.text-muted-light { color: rgba(244,246,249,0.72); margin: 0; }
+
+/* Stats strip */
+.stats-strip {
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+  padding: 0;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+.stat-block {
+  padding: 26px 24px;
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stat-block:last-child { border-right: none; }
+.stat-num {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--night);
+}
+.stat-label { font-size: 0.82rem; color: var(--ink-muted); }
+
+/* Filters */
+.feed-section { padding: 44px 0 90px; }
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  padding: 9px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ink-muted);
+  transition: all 0.15s ease;
+}
+.filter-chip .dot { width: 7px; height: 7px; border-radius: 50%; }
+.filter-chip .dot-theft { background: var(--cat-theft); }
+.filter-chip .dot-harassment { background: var(--cat-harassment); }
+.filter-chip .dot-hazard { background: var(--cat-hazard); }
+.filter-chip .dot-suspicious { background: var(--cat-suspicious); }
+
+.filter-chip:hover { border-color: var(--night-2); color: var(--night); }
+.filter-chip.is-active {
+  background: var(--night);
+  border-color: var(--night);
+  color: #fff;
+}
+
+/* Feed */
+.feed {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+.report-card {
+  position: relative;
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: 20px 20px 18px;
+  box-shadow: var(--shadow-card);
+  border-left: 4px solid var(--ink-muted);
+}
+.cat-border-theft       { border-left-color: var(--cat-theft); }
+.cat-border-harassment  { border-left-color: var(--cat-harassment); }
+.cat-border-hazard      { border-left-color: var(--cat-hazard); }
+.cat-border-suspicious  { border-left-color: var(--cat-suspicious); }
+
+.report-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.report-card-time { font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-muted); }
+.report-card-body { font-size: 0.95rem; margin-bottom: 16px; color: var(--ink); }
+.report-card-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  border-top: 1px dashed var(--line);
+  padding-top: 10px;
+}
+.report-card-identity { font-style: italic; text-align: right; }
+.report-card-id {
+  position: absolute;
+  top: 20px; right: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--line);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--ink-muted);
+  background: var(--card);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--line);
+}
+
+@media (max-width: 860px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .stat-block { border-right: none; border-bottom: 1px solid var(--line); }
+  .stat-block:last-child { border-bottom: none; }
+  .feed { grid-template-columns: 1fr; }
+}
+
+/* ===========================================================
+   Map view
+   =========================================================== */
+.controls-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.controls-row .filter-bar { margin-bottom: 0; }
+
+.view-toggle {
+  display: inline-flex;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  flex: none;
+}
+.view-toggle-btn {
+  background: var(--card);
+  border: none;
+  padding: 9px 18px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-muted);
+  transition: all 0.15s ease;
+}
+.view-toggle-btn.is-active {
+  background: var(--night);
+  color: #fff;
+}
+
+.map-panel { margin-bottom: 12px; }
+#campus-map {
+  height: 480px;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--line);
+}
+.map-note {
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  margin: 12px 4px 0;
+  max-width: 70ch;
+}
+
+/* Leaflet popup restyle to match the site's card language */
+.leaflet-popup-content-wrapper {
+  border-radius: var(--radius-md);
+  padding: 2px;
+}
+.leaflet-popup-content { margin: 14px 16px; width: 240px !important; }
+.map-popup-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px;}
+.map-popup-time { font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-muted); white-space: nowrap; }
+.map-popup-body { font-size: 0.87rem; margin: 0 0 10px; color: var(--ink); }
+.map-popup-foot { font-size: 0.72rem; color: var(--ink-muted); display: flex; flex-direction: column; gap: 3px; border-top: 1px dashed var(--line); padding-top: 8px; }
+
+.marker-pin {
+  width: 16px; height: 16px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+}
+
+@media (max-width: 860px) {
+  .controls-row { flex-direction: column; align-items: stretch; }
+  #campus-map { height: 380px; }
+}
+
+.data-banner {
+  background: #FFF4E5;
+  border: 1px solid #F3D9A8;
+  color: #7A5416;
+  font-size: 0.85rem;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  margin: 24px 0 0;
+}
+.data-banner code {
+  font-family: var(--font-mono);
+  background: rgba(0,0,0,0.06);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
