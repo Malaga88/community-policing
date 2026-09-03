@@ -161,7 +161,7 @@ form.addEventListener("submit", async (event) => {
   };
 
   try {
-    const res = await fetch("/api/reports", {
+    const res = await fetch("https://community-policing.onrender.com/api/reports", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

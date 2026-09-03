@@ -11,7 +11,7 @@
 // Reference point: ATBU Library, Gubi (Main) Campus, along Kano/Ningi Road,
 // Bauchi — 10.4689°N, 9.8303°E.
 const CAMPUS_CENTER = [10.4689, 9.8303];
-const API_BASE = "/api/reports";
+const API_BASE = "https://community-policing.onrender.com/api/reports";
 
 const FALLBACK_REPORTS = [
   {

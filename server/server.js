@@ -3,6 +3,7 @@ require("dotenv").config();
 const path = require("path");
 const express = require("express");
 const cors = require("cors");
+
 const morgan = require("morgan");
 
 const connectDB = require("./config/db");
@@ -12,7 +13,7 @@ const { notFound, errorHandler } = require("./middleware/errorHandler");
 
 const app = express();
 
-app.use(cors());
+app.use(cors({ origin: "https://malaga88.github.io" }));
 app.use(express.json());
 if (process.env.NODE_ENV !== "test") app.use(morgan("dev"));
 
