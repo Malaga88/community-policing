@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — GubiWatch</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+</head>
+<body>
+
+  <header class="radar-bg header-slim">
+    <nav class="site-nav">
+      <div class="wrap">
+        <a href="index.html" class="brand"><span class="brand-dot"></span>GubiWatch <small>ATBU&nbsp;GUBI&nbsp;CAMPUS</small></a>
+        <ul class="nav-links" role="list">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="dashboard.html" class="current">Dashboard</a></li>
+          <li><a href="report.html" class="btn btn-ghost" style="padding:9px 18px;">Report an incident</a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="wrap header-slim-copy">
+      <p class="eyebrow">Live campus dashboard</p>
+      <h1>What's happening around Gubi Campus.</h1>
+      <p class="text-muted-light">Every report below was submitted by a student. Sorted newest first — no login needed to browse.</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <p class="data-banner" id="data-source-banner" hidden>
+        ⚠️ Couldn't reach the GubiWatch server — showing sample data instead. Start the backend (<code>npm run dev</code> in <code>/server</code>) to see live reports.
+      </p>
+    </div>
+
+    <!-- ============ Stats strip ============ -->
+    <section class="stats-strip">
+      <div class="wrap stats-grid">
+        <div class="stat-block">
+          <span class="stat-num" id="stat-total">–</span>
+          <span class="stat-label">Reports on record</span>
+        </div>
+        <div class="stat-block">
+          <span class="stat-num" id="stat-top-category">–</span>
+          <span class="stat-label">Most reported category</span>
+        </div>
+        <div class="stat-block">
+          <span class="stat-num" id="stat-anon-share">–</span>
+          <span class="stat-label">Reported anonymously</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Filters + view toggle ============ -->
+    <section class="feed-section">
+      <div class="wrap">
+
+        <div class="controls-row">
+          <div class="filter-bar" id="filter-bar" role="group" aria-label="Filter by category">
+            <button class="filter-chip is-active" data-category="all">All reports</button>
+            <button class="filter-chip" data-category="theft">
+              <span class="dot dot-theft"></span>Theft
+            </button>
+            <button class="filter-chip" data-category="harassment">
+              <span class="dot dot-harassment"></span>Harassment
+            </button>
+            <button class="filter-chip" data-category="hazard">
+              <span class="dot dot-hazard"></span>Safety hazard
+            </button>
+            <button class="filter-chip" data-category="suspicious">
+              <span class="dot dot-suspicious"></span>Suspicious activity
+            </button>
+          </div>
+
+          <div class="view-toggle" id="view-toggle" role="group" aria-label="Switch view">
+            <button class="view-toggle-btn is-active" data-view="map">🗺️ Map</button>
+            <button class="view-toggle-btn" data-view="list">☰ List</button>
+          </div>
+        </div>
+
+        <!-- ============ Map view ============ -->
+        <div class="map-panel" id="map-panel">
+          <div id="campus-map"></div>
+          <p class="map-note">Marker positions are approximate, generated from placeholder demo coordinates around Gubi Campus. Once the reporting form is connected to a live backend, each pin will reflect the location a student actually submitted.</p>
+        </div>
+
+        <!-- ============ List view ============ -->
+        <div class="feed" id="feed" hidden><!-- report cards injected by dashboard.js --></div>
+
+        <div class="empty-state" id="empty-state" hidden>
+          <p>No reports in this category yet — that's a good thing.</p>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer radar-bg">
+    <div class="wrap">
+      <span>GubiWatch — a final year project for ATBU Gubi Campus</span>
+      <span>Built by students, for students</span>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

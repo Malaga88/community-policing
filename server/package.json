@@ -1,0 +1,23 @@
+{
+  "name": "gubiwatch-server",
+  "version": "1.0.0",
+  "description": "Backend for GubiWatch — Web-Based Community Policing and Incident Report System for ATBU Gubi Campus",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node seed/seedReports.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.9.4",
+    "morgan": "^1.12.0"
+  }
+}
