@@ -26,6 +26,11 @@
 
   --safe-green:   #3F8F5F;
 
+  /* Severity colours — used for map pins, badges and the report picker */
+  --sev-low:      #2E9E5B;   /* green */
+  --sev-medium:   #E8A33D;   /* amber */
+  --sev-high:     #D43B35;   /* red */
+
   /* --- Type ----------------------------------------------- */
   --font-display: 'Fraunces', Georgia, serif;
   --font-body:    'Inter', -apple-system, BlinkMacSystemFont, sans-serif;

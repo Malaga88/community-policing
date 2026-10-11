@@ -1,13 +1,14 @@
 const Report = require("../models/Report");
-const { INCIDENT_CATEGORIES } = require("../models/Report");
+const { INCIDENT_CATEGORIES, SEVERITY_LEVELS } = require("../models/Report");
 
 // GET /api/reports
 // GET /api/reports?category=theft
+// GET /api/reports?severity=high
 // Returns reports newest-first. Optionally filtered by category — this is
 // what powers both the dashboard's filter chips and the map's markers.
 async function getReports(req, res) {
   try {
-    const { category } = req.query;
+    const { category, severity } = req.query;
     const filter = {};
 
     if (category && category !== "all") {
@@ -15,6 +16,13 @@ async function getReports(req, res) {
         return res.status(400).json({ message: `Unknown category: ${category}` });
       }
       filter.category = category;
+    }
+
+    if (severity && severity !== "all") {
+      if (!SEVERITY_LEVELS.includes(severity)) {
+        return res.status(400).json({ message: `Unknown severity: ${severity}` });
+      }
+      filter.severity = severity;
     }
 
     const reports = await Report.find(filter).sort({ createdAt: -1 });
@@ -59,11 +67,12 @@ async function getReportStats(req, res) {
 // as the typed reporterName, for whenever account-based reports matter.
 async function createReport(req, res, next) {
   try {
-    const { category, description, location, lat, lng, isAnonymous, reporterName } = req.body;
+    const { category, severity, description, location, lat, lng, isAnonymous, reporterName } = req.body;
     const anonymous = !(isAnonymous === false || isAnonymous === "false");
 
     const report = await Report.create({
       category,
+      severity: severity || undefined, // omitted -> schema default ("medium")
       description,
       location,
       lat: lat !== undefined && lat !== "" ? Number(lat) : undefined,

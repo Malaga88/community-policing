@@ -10,6 +10,7 @@ const Report = require("../models/Report");
 const SAMPLE_REPORTS = [
   {
     category: "suspicious",
+    severity: "medium",
     location: "Behind Hostel C",
     description: "Man in a black jacket loitering near the girls' hostel gate, side lane. Not a student — no ID visible.",
     isAnonymous: true,
@@ -17,6 +18,7 @@ const SAMPLE_REPORTS = [
   },
   {
     category: "theft",
+    severity: "high",
     location: "New Male Hostel, Block B",
     description: "My phone was taken from my table while I stepped out to the bathroom around 9pm. Room door was unlocked for less than 5 minutes.",
     isAnonymous: false,
@@ -25,6 +27,7 @@ const SAMPLE_REPORTS = [
   },
   {
     category: "hazard",
+    severity: "medium",
     location: "Pathway between SICT and the Library",
     description: "Streetlight has been out for about a week now. Very dark by 7pm, hard to see the potholes.",
     isAnonymous: false,
@@ -33,6 +36,7 @@ const SAMPLE_REPORTS = [
   },
   {
     category: "harassment",
+    severity: "high",
     location: "Junction near the Faculty of Computing",
     description: "A group of guys have been catcalling girls walking past that junction every evening this week.",
     isAnonymous: true,
@@ -40,6 +44,7 @@ const SAMPLE_REPORTS = [
   },
   {
     category: "theft",
+    severity: "medium",
     location: "Basketball court, evening",
     description: "Bag left on the bench for two minutes and a wallet went missing from it.",
     isAnonymous: true,
@@ -47,6 +52,7 @@ const SAMPLE_REPORTS = [
   },
   {
     category: "suspicious",
+    severity: "low",
     location: "Around the generator house, Female Hostel",
     description: "Same unfamiliar face seen twice this week, just standing around after dark.",
     isAnonymous: false,
@@ -55,6 +61,7 @@ const SAMPLE_REPORTS = [
   },
   {
     category: "hazard",
+    severity: "medium",
     location: "Stairs, old Engineering block",
     description: "Handrail on the second floor stairs is loose — wobbles badly if you lean on it.",
     isAnonymous: false,
@@ -63,6 +70,7 @@ const SAMPLE_REPORTS = [
   },
   {
     category: "harassment",
+    severity: "high",
     location: "Off-campus shuttle stop",
     description: "Okada rider following and pestering a group of female students after they declined a ride.",
     isAnonymous: true,

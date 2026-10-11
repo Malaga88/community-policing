@@ -30,6 +30,17 @@ const previewBadge    = document.getElementById("preview-badge");
 const previewBody     = document.getElementById("preview-body");
 const previewLocation = document.getElementById("preview-location");
 const previewIdentity = document.getElementById("preview-identity");
+const previewSeverity = document.getElementById("preview-severity");
+const severityInputs  = form.querySelectorAll('input[name="severity"]');
+
+// ---- Severity selection: keep the preview badge in sync ----
+function updateSeverityUI() {
+  const checked = form.querySelector('input[name="severity"]:checked');
+  const value = checked ? checked.value : "medium";
+  previewSeverity.className = "sev-badge sev-" + value;
+  previewSeverity.textContent = value.charAt(0).toUpperCase() + value.slice(1);
+}
+severityInputs.forEach((input) => input.addEventListener("change", updateSeverityUI));
 
 const reportSection   = document.querySelector(".report-section");
 const successSection  = document.getElementById("report-success");
@@ -194,6 +205,7 @@ form.addEventListener("submit", async (event) => {
   const isAnonymous = identityValue.value === "anonymous";
   const payload = {
     category: form.querySelector('input[name="category"]:checked').value,
+    severity: (form.querySelector('input[name="severity"]:checked') || {}).value || "medium",
     location: locationInput.value.trim(),
     description: descriptionInput.value.trim(),
     isAnonymous,
@@ -228,6 +240,7 @@ form.addEventListener("submit", async (event) => {
 reportAnotherBtn.addEventListener("click", () => {
   form.reset();
   updateCategoryUI();
+  updateSeverityUI();
   updateTextPreview();
   reportSection.hidden = false;
   successSection.hidden = true;
@@ -236,4 +249,5 @@ reportAnotherBtn.addEventListener("click", () => {
 
 // ---- init ----
 updateCategoryUI();
+updateSeverityUI();
 updateTextPreview();

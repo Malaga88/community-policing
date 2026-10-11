@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const INCIDENT_CATEGORIES = ["theft", "harassment", "hazard", "suspicious"];
+const SEVERITY_LEVELS = ["low", "medium", "high"];
 
 const reportSchema = new mongoose.Schema(
   {
@@ -8,6 +9,14 @@ const reportSchema = new mongoose.Schema(
       type: String,
       enum: INCIDENT_CATEGORIES,
       required: [true, "Incident category is required"],
+    },
+    // How serious the reporter thinks this is. Drives the pin colour on the
+    // dashboard map (low = green, medium = amber, high = red). Reports saved
+    // before this field existed simply read back as "medium".
+    severity: {
+      type: String,
+      enum: { values: SEVERITY_LEVELS, message: "Severity must be low, medium or high" },
+      default: "medium",
     },
     description: {
       type: String,
@@ -61,3 +70,4 @@ reportSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model("Report", reportSchema);
 module.exports.INCIDENT_CATEGORIES = INCIDENT_CATEGORIES;
+module.exports.SEVERITY_LEVELS = SEVERITY_LEVELS;

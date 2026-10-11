@@ -75,9 +75,9 @@ gubiwatch/
 | Method | Route                | Description |
 |--------|-----------------------|--------------|
 | GET    | `/api/health`          | Basic health check |
-| GET    | `/api/reports`         | List reports, newest first. Supports `?category=theft\|harassment\|hazard\|suspicious` |
+| GET    | `/api/reports`         | List reports, newest first. Supports `?category=theft\|harassment\|hazard\|suspicious` and `?severity=low\|medium\|high` |
 | GET    | `/api/reports/stats`   | Aggregate stats (total, top category, % anonymous) |
-| POST   | `/api/reports`         | Create a report — `{ category, location, description, isAnonymous, reporterName?, lat?, lng? }` |
+| POST   | `/api/reports`         | Create a report — `{ category, severity?, location, description, isAnonymous, reporterName?, lat?, lng? }` |
 | POST   | `/api/auth/register`   | Create a student account — `{ fullName, email, password, matricNumber? }` |
 | POST   | `/api/auth/login`      | Log in — `{ email, password }`, returns a JWT |
 

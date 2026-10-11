@@ -15,53 +15,65 @@ const API_BASE = "https://community-policing.onrender.com/api/reports";
 
 const FALLBACK_REPORTS = [
   {
-    id: "GW-1042", category: "suspicious", location: "Behind Hostel C",
+    id: "GW-1042", severity: "medium", category: "suspicious", location: "Behind Hostel C",
     description: "Man in a black jacket loitering near the girls' hostel gate, side lane. Not a student — no ID visible.",
     minutesAgo: 4, anonymous: true, lat: 10.4696, lng: 9.8295,
   },
   {
-    id: "GW-1041", category: "theft", location: "New Male Hostel, Block B",
+    id: "GW-1041", severity: "high", category: "theft", location: "New Male Hostel, Block B",
     description: "My phone was taken from my table while I stepped out to the bathroom around 9pm. Room door was unlocked for less than 5 minutes.",
     minutesAgo: 38, anonymous: false, reporterName: "Amina B.", lat: 10.4702, lng: 9.8310,
   },
   {
-    id: "GW-1040", category: "hazard", location: "Pathway between SICT and the Library",
+    id: "GW-1040", severity: "medium", category: "hazard", location: "Pathway between SICT and the Library",
     description: "Streetlight has been out for about a week now. Very dark by 7pm, hard to see the potholes.",
     minutesAgo: 95, anonymous: false, reporterName: "Ibrahim T.", lat: 10.4688, lng: 9.8300,
   },
   {
-    id: "GW-1039", category: "harassment", location: "Junction near the Faculty of Computing",
+    id: "GW-1039", severity: "high", category: "harassment", location: "Junction near the Faculty of Computing",
     description: "A group of guys have been catcalling girls walking past that junction every evening this week.",
     minutesAgo: 140, anonymous: true, lat: 10.4680, lng: 9.8315,
   },
   {
-    id: "GW-1038", category: "theft", location: "Basketball court, evening",
+    id: "GW-1038", severity: "medium", category: "theft", location: "Basketball court, evening",
     description: "Bag left on the bench for two minutes and a wallet went missing from it.",
     minutesAgo: 210, anonymous: true, lat: 10.4693, lng: 9.8288,
   },
   {
-    id: "GW-1037", category: "suspicious", location: "Around the generator house, Female Hostel",
+    id: "GW-1037", severity: "low", category: "suspicious", location: "Around the generator house, Female Hostel",
     description: "Same unfamiliar face seen twice this week, just standing around after dark.",
     minutesAgo: 340, anonymous: false, reporterName: "Chiamaka O.", lat: 10.4705, lng: 9.8299,
   },
   {
-    id: "GW-1036", category: "hazard", location: "Stairs, old Engineering block",
+    id: "GW-1036", severity: "medium", category: "hazard", location: "Stairs, old Engineering block",
     description: "Handrail on the second floor stairs is loose — wobbles badly if you lean on it.",
     minutesAgo: 480, anonymous: false, reporterName: "Yusuf A.", lat: 10.4675, lng: 9.8292,
   },
   {
-    id: "GW-1035", category: "harassment", location: "Off-campus shuttle stop",
+    id: "GW-1035", severity: "high", category: "harassment", location: "Off-campus shuttle stop",
     description: "Okada rider following and pestering a group of female students after they declined a ride.",
     minutesAgo: 610, anonymous: true, lat: 10.4670, lng: 9.8320,
   },
 ];
 
 const CATEGORY_META = {
-  theft:      { label: "Theft" },
-  harassment: { label: "Harassment" },
-  hazard:     { label: "Safety hazard" },
-  suspicious: { label: "Suspicious activity" },
+  theft:      { label: "Theft",               icon: "👜" },
+  harassment: { label: "Harassment",          icon: "🗣️" },
+  hazard:     { label: "Safety hazard",       icon: "⚠️" },
+  suspicious: { label: "Suspicious activity", icon: "👁️" },
 };
+
+// Severity drives the pin colour. Reports saved before severity existed
+// (no value from the API) are treated as "medium".
+const SEVERITY_META = {
+  low:    { label: "Low",    color: "#2E9E5B" },
+  medium: { label: "Medium", color: "#E8A33D" },
+  high:   { label: "High",   color: "#D43B35" },
+};
+const SEVERITY_RANK = { low: 0, medium: 1, high: 2 }; // higher-severity pins draw on top
+function severityOf(report) {
+  return SEVERITY_META[report.severity] ? report.severity : "medium";
+}
 
 const feedEl         = document.getElementById("feed");
 const emptyStateEl   = document.getElementById("empty-state");
@@ -75,6 +87,7 @@ const dataBannerEl   = document.getElementById("data-source-banner");
 
 let REPORTS = [];
 let activeFilter = "all";
+let activeSeverity = "all";
 let activeView   = "map";
 
 // ------------------------------------------------------------
@@ -89,6 +102,7 @@ async function loadReports() {
     REPORTS = docs.map((doc) => ({
       id: "GW-" + String(doc._id).slice(-6).toUpperCase(),
       category: doc.category,
+      severity: doc.severity,
       location: doc.location,
       description: doc.description,
       minutesAgo: Math.max(0, Math.round((Date.now() - new Date(doc.createdAt)) / 60000)),
@@ -110,10 +124,14 @@ async function loadReports() {
   renderMapMarkers();
 }
 
+// One predicate for every view, so the list, the pins and the hotspots always agree.
+function matchesFilters(report) {
+  return (activeFilter === "all" || report.category === activeFilter) &&
+         (activeSeverity === "all" || severityOf(report) === activeSeverity);
+}
+
 function visibleReports() {
-  return activeFilter === "all"
-    ? REPORTS
-    : REPORTS.filter((r) => r.category === activeFilter);
+  return REPORTS.filter(matchesFilters);
 }
 
 // Escapes user-supplied text before it is placed into HTML, so a report
@@ -148,6 +166,7 @@ function reportCardHTML(report) {
     <article class="report-card cat-border-${report.category}" data-category="${report.category}">
       <div class="report-card-head">
         <span class="cat-badge cat-${report.category}"><span class="dot"></span>${meta.label}</span>
+        <span class="sev-badge sev-${severityOf(report)}">${SEVERITY_META[severityOf(report)].label}</span>
         <span class="report-card-time">${timeAgoLabel(report.minutesAgo)}</span>
       </div>
       <p class="report-card-body">${escapeHTML(report.description)}</p>
@@ -191,21 +210,19 @@ function renderStats() {
 let campusMap = null;
 let markerLayer = null;
 let landmarkLayer = null;
+let hotspotLayer = null;
 const landmarkToggle = document.getElementById("landmark-toggle");
 
-function categoryColor(category) {
-  return getComputedStyle(document.documentElement)
-    .getPropertyValue("--cat-" + category)
-    .trim();
-}
-
-function pinDivIcon(category) {
+// Pin colour = severity; the glyph inside = incident category.
+function pinDivIcon(report) {
+  const sev = severityOf(report);
+  const glyph = (CATEGORY_META[report.category] || {}).icon || "📍";
   return L.divIcon({
     className: "",
-    html: `<span class="marker-pin" style="background:${categoryColor(category)};"></span>`,
-    iconSize: [16, 16],
-    iconAnchor: [8, 15],
-    popupAnchor: [0, -16],
+    html: `<span class="marker-pin sev-${sev}"><span class="marker-pin-icon">${glyph}</span></span>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30],
   });
 }
 
@@ -220,6 +237,7 @@ function initMap() {
   }).addTo(campusMap);
 
   landmarkLayer = L.layerGroup().addTo(campusMap); // added first so report pins sit on top
+  hotspotLayer  = L.layerGroup().addTo(campusMap); // translucent circles, under the pins
   markerLayer = L.layerGroup().addTo(campusMap);
 }
 
@@ -323,6 +341,61 @@ function renderLandmarks(placed) {
   });
 }
 
+// ---- Hotspots: areas where several reports cluster together ----
+// Reports within HOTSPOT_RADIUS_M of each other (chained) form one cluster.
+// A cluster of 2+ reports is drawn as a translucent circle. Each report is
+// weighted by severity (low 1, medium 2, high 3) and the colour follows the
+// total, so three high-severity reports read hotter than five low ones.
+const HOTSPOT_RADIUS_M = 100; // metres; tweak to make hotspots tighter or looser
+const SEVERITY_WEIGHT = { low: 1, medium: 2, high: 3 };
+const hotspotToggle = document.getElementById("hotspot-toggle");
+
+function clusterReports(placed) {
+  const clusters = [];
+  const seen = new Set();
+  placed.forEach((start, i) => {
+    if (seen.has(i)) return;
+    const members = [start];
+    seen.add(i);
+    for (let q = 0; q < members.length; q++) { // grow the cluster outward
+      placed.forEach((other, j) => {
+        if (seen.has(j)) return;
+        if (distanceMetres(members[q].origLat, members[q].origLng, other.origLat, other.origLng) <= HOTSPOT_RADIUS_M) {
+          seen.add(j);
+          members.push(other);
+        }
+      });
+    }
+    clusters.push(members);
+  });
+  return clusters;
+}
+
+function renderHotspots(placed) {
+  hotspotLayer.clearLayers();
+  if (hotspotToggle && !hotspotToggle.checked) return;
+
+  clusterReports(placed).filter((c) => c.length >= 2).forEach((members) => {
+    const score = members.reduce((sum, p) => sum + SEVERITY_WEIGHT[severityOf(p.report)], 0);
+    const highCount = members.filter((p) => severityOf(p.report) === "high").length;
+    const color = score >= 7 ? SEVERITY_META.high.color
+                : score >= 4 ? SEVERITY_META.medium.color
+                :              SEVERITY_META.low.color;
+
+    // centre on the average position; radius grows with the spread and size of the cluster
+    const lat = members.reduce((a, p) => a + p.origLat, 0) / members.length;
+    const lng = members.reduce((a, p) => a + p.origLng, 0) / members.length;
+    const spread = Math.max(...members.map((p) => distanceMetres(lat, lng, p.origLat, p.origLng)));
+    const radius = Math.min(150, Math.max(35, spread + 25) + members.length * 4);
+
+    L.circle([lat, lng], {
+      radius, color, weight: 1.5, dashArray: "4 4",
+      fillColor: color, fillOpacity: Math.min(0.45, 0.14 + score * 0.03),
+      interactive: false, // never block clicks on the pins underneath
+    }).addTo(hotspotLayer);
+  });
+}
+
 function renderMapMarkers() {
   if (!markerLayer) return;
   markerLayer.clearLayers();
@@ -330,9 +403,11 @@ function renderMapMarkers() {
   const placed = computeReportPositions(REPORTS);
   renderLandmarks(placed);
 
-  placed
-    .filter((p) => activeFilter === "all" || p.report.category === activeFilter)
-    .forEach((p) => {
+  // hotspots and pins both respect the active category + severity filters
+  const shown = placed.filter((p) => matchesFilters(p.report));
+  renderHotspots(shown);
+
+  shown.forEach((p) => {
       const report = p.report;
       const meta = CATEGORY_META[report.category];
       const identityLabel = report.anonymous
@@ -342,11 +417,13 @@ function renderMapMarkers() {
         ? `<span>📌 Shown near ${escapeHTML(p.landmark.name)} (approximate)</span>`
         : "";
 
+      const sev = severityOf(report);
       const popupHTML = `
         <div class="map-popup-head">
           <span class="cat-badge cat-${report.category}"><span class="dot"></span>${meta.label}</span>
-          <span class="map-popup-time">${timeAgoLabel(report.minutesAgo)}</span>
+          <span class="sev-badge sev-${sev}">${SEVERITY_META[sev].label}</span>
         </div>
+        <div class="map-popup-time" style="margin-bottom:8px;">${timeAgoLabel(report.minutesAgo)}</div>
         <p class="map-popup-body">${escapeHTML(report.description)}</p>
         <div class="map-popup-foot">
           <span>📍 ${escapeHTML(report.location)}</span>
@@ -355,13 +432,26 @@ function renderMapMarkers() {
         </div>
       `;
 
-      L.marker([p.lat, p.lng], { icon: pinDivIcon(report.category), zIndexOffset: 1000 })
+      L.marker([p.lat, p.lng], { icon: pinDivIcon(report), zIndexOffset: 1000 + SEVERITY_RANK[severityOf(report)] * 100 })
         .bindPopup(popupHTML)
         .addTo(markerLayer);
     });
 }
 
 if (landmarkToggle) landmarkToggle.addEventListener("change", renderMapMarkers);
+if (hotspotToggle) hotspotToggle.addEventListener("change", renderMapMarkers);
+
+// ---- Severity filter chips ----
+const severityBar = document.getElementById("severity-bar");
+severityBar.addEventListener("click", (event) => {
+  const chip = event.target.closest(".filter-chip");
+  if (!chip) return;
+  severityBar.querySelectorAll(".filter-chip").forEach((c) => c.classList.remove("is-active"));
+  chip.classList.add("is-active");
+  activeSeverity = chip.dataset.severity;
+  renderFeed();
+  renderMapMarkers();
+});
 
 // ------------------------------------------------------------
 // Filters (drives both the map markers and the list feed)

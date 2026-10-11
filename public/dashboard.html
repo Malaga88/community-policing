@@ -81,12 +81,28 @@
           </div>
         </div>
 
+        <div class="filter-bar severity-bar" id="severity-bar" role="group" aria-label="Filter by severity">
+          <span class="filter-bar-label">Severity:</span>
+          <button class="filter-chip is-active" data-severity="all">All</button>
+          <button class="filter-chip" data-severity="low"><span class="dot dot-sev-low"></span>Low</button>
+          <button class="filter-chip" data-severity="medium"><span class="dot dot-sev-medium"></span>Medium</button>
+          <button class="filter-chip" data-severity="high"><span class="dot dot-sev-high"></span>High</button>
+        </div>
+
         <!-- ============ Map view ============ -->
         <div class="map-panel" id="map-panel">
           <div id="campus-map"></div>
           <div class="map-legend">
             <label class="landmark-switch"><input type="checkbox" id="landmark-toggle" checked> Show campus landmarks</label>
-            <span class="map-legend-item"><span class="legend-pin"></span> Report pin (colour = category)</span>
+            <label class="landmark-switch"><input type="checkbox" id="hotspot-toggle" checked> Show hotspots</label>
+            <span class="map-legend-item">
+              <span class="legend-title">Severity:</span>
+              <span class="legend-sev"><span class="legend-sev-dot sev-low"></span>Low</span>
+              <span class="legend-sev"><span class="legend-sev-dot sev-medium"></span>Medium</span>
+              <span class="legend-sev"><span class="legend-sev-dot sev-high"></span>High</span>
+            </span>
+            <span class="map-legend-item">Icon inside the pin = incident type</span>
+            <span class="map-legend-item"><span class="legend-hotspot"></span> Hotspot = 2+ reports close together (darker = more serious)</span>
             <span class="map-legend-item"><span class="legend-landmark">🏫</span> Campus landmark</span>
           </div>
           <p class="map-note">Report pins sit where a student shared their location or picked a campus spot; reports that only name a known landmark are shown near it. Landmark positions are approximate.</p>

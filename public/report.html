@@ -60,6 +60,24 @@
           </div>
 
           <div class="field-group">
+            <span class="field-label">How serious is it?</span>
+            <div class="severity-picker" role="radiogroup" aria-label="Severity">
+              <label class="severity-option">
+                <input type="radio" name="severity" value="low">
+                <span class="sev-dot sev-low"></span><strong>Low</strong><small>Minor / no immediate risk</small>
+              </label>
+              <label class="severity-option">
+                <input type="radio" name="severity" value="medium" checked>
+                <span class="sev-dot sev-medium"></span><strong>Medium</strong><small>Needs attention soon</small>
+              </label>
+              <label class="severity-option">
+                <input type="radio" name="severity" value="high">
+                <span class="sev-dot sev-high"></span><strong>High</strong><small>Urgent / people at risk</small>
+              </label>
+            </div>
+          </div>
+
+          <div class="field-group">
             <label class="field-label" for="location">Where did this happen?</label>
             <select id="campus-place" class="text-input" aria-label="Pick a popular campus spot (optional)">
               <option value="">Pick a popular campus spot (optional)</option>
@@ -111,6 +129,7 @@
           <div class="preview-card" id="preview-card">
             <div class="preview-card-head">
               <span class="cat-badge cat-theft" id="preview-badge"><span class="dot"></span>Theft</span>
+              <span class="sev-badge sev-medium" id="preview-severity">Medium</span>
               <span class="hero-card-time">Just now</span>
             </div>
             <p class="preview-card-body" id="preview-body">Your description will appear here as you type…</p>
