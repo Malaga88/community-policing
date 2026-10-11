@@ -1,0 +1,48 @@
+/* ===========================================================
+   login.html — log in / create account
+   =========================================================== */
+.auth-section { padding: 52px 0 90px; }
+.auth-wrap { display: flex; justify-content: center; }
+.auth-card {
+  width: 100%; max-width: 460px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: var(--shadow-card);
+}
+.auth-card h2 { margin: 0 0 8px; }
+.auth-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+
+.auth-tabs {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border: 1.5px solid var(--line); border-radius: var(--radius-sm);
+  overflow: hidden; margin-bottom: 24px;
+}
+.auth-tab {
+  background: #FBFBFA; border: none; padding: 12px 14px;
+  font-weight: 600; font-size: 0.9rem; color: var(--ink-muted);
+}
+.auth-tab + .auth-tab { border-left: 1.5px solid var(--line); }
+.auth-tab.is-active { background: var(--night); color: #fff; }
+.auth-tab:focus-visible { outline: 2.5px solid var(--amber); outline-offset: -2px; }
+
+.auth-error {
+  background: #FDECEA; border: 1px solid #F3B8B3; color: #8A1F17;
+  font-size: 0.86rem; padding: 12px 14px; border-radius: var(--radius-sm);
+  margin: 0 0 20px;
+}
+
+.optional { font-weight: 400; color: var(--ink-muted); }
+.field-hint { font-size: 0.78rem; color: var(--ink-muted); margin: 6px 0 0; }
+
+.password-wrap { position: relative; }
+.password-wrap .text-input { padding-right: 64px; }
+.show-password {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; padding: 6px 8px;
+  font-size: 0.78rem; font-weight: 600; color: var(--night-2); cursor: pointer;
+}
+.show-password:hover { color: var(--amber-deep); }
+
+@media (max-width: 520px) { .auth-card { padding: 24px 20px; } }

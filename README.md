@@ -81,10 +81,17 @@ gubiwatch/
 | POST   | `/api/auth/register`   | Create a student account — `{ fullName, email, password, matricNumber? }` |
 | POST   | `/api/auth/login`      | Log in — `{ email, password }`, returns a JWT |
 
-Note: `/api/auth` exists and works, but no page in `/public` calls it yet —
-`report.html` still just takes a typed name for identified reports rather
-than requiring login. It's there and ready for whenever a login/register
-page gets built.
+## Accounts (optional)
+
+`public/login.html` has a Log in tab and a Create account tab. `public/js/auth.js`
+keeps the JWT in `localStorage`, treats an expired token as logged out, and adds
+Log in / Log out to the nav on every page.
+
+- Accounts are **optional** — anonymous reporting and browsing the dashboard still need no login.
+- When logged in, `report.html` locks the name field to the account name and sends the token with
+  **named** reports only, so they are linked to the account (`reportedBy`). Anonymous reports never
+  carry the token and are never linked.
+- `login.html?mode=register` opens the Create account tab; `?next=report.html` returns there afterwards.
 
 ## A known limitation of this build
 

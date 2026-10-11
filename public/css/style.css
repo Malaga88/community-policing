@@ -415,3 +415,15 @@ section { padding: 64px 0; }
   .nav-links { gap: 14px; }
   .nav-links li:nth-child(1) { display: none; }
 }
+
+
+/* ---- Nav: login state (injected by js/auth.js) ---- */
+.nav-auth { display: flex; align-items: center; gap: 10px; }
+.nav-user { font-size: 0.85rem; color: rgba(244,246,249,0.8); white-space: nowrap; }
+.nav-logout {
+  background: none; border: 1px solid rgba(244,246,249,0.35); color: #fff;
+  border-radius: 999px; padding: 6px 14px; font-size: 0.8rem; font-weight: 600; cursor: pointer;
+  transition: background 0.15s ease;
+}
+.nav-logout:hover { background: rgba(255,255,255,0.12); }
+@media (max-width: 640px) { .nav-user { display: none; } }

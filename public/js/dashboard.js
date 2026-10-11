@@ -236,6 +236,12 @@ function initMap() {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(campusMap);
 
+  // Permanent landmark labels would pile up when zoomed out, so hide them below zoom 15.
+  const syncLabelVisibility = () =>
+    campusMap.getContainer().classList.toggle("labels-hidden", campusMap.getZoom() < 15);
+  campusMap.on("zoomend", syncLabelVisibility);
+  syncLabelVisibility();
+
   landmarkLayer = L.layerGroup().addTo(campusMap); // added first so report pins sit on top
   hotspotLayer  = L.layerGroup().addTo(campusMap); // translucent circles, under the pins
   markerLayer = L.layerGroup().addTo(campusMap);
@@ -329,8 +335,15 @@ function renderLandmarks(placed) {
       ? "No reports here yet"
       : nearby + (nearby === 1 ? " report here" : " reports here");
 
+    // Landmarks flagged `label` get their name printed above the pin all the time;
+    // the rest only show it on hover.
+    const labelText = lm.label ? (typeof lm.label === "string" ? lm.label : lm.name) : null;
+    const tooltipOptions = labelText
+      ? { permanent: true, direction: "top", offset: [0, -14], className: "landmark-label" }
+      : { direction: "top", offset: [0, -12] };
+
     L.marker([lm.lat, lm.lng], { icon: landmarkIcon(lm.type), zIndexOffset: -500 })
-      .bindTooltip(escapeHTML(lm.name), { direction: "top", offset: [0, -12] })
+      .bindTooltip(escapeHTML(labelText || lm.name), tooltipOptions)
       .bindPopup(`
         <div class="map-popup-head"><strong>${escapeHTML(lm.name)}</strong></div>
         <div class="map-popup-foot">

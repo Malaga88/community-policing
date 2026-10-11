@@ -1,10 +1,8 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
-// NOTE: registration/login endpoints exist (see routes/authRoutes.js) so this
-// collection is ready to use, but the current report.html form does not yet
-// require an account — it just takes a typed name for identified reports.
-// This model is the foundation for wiring real student accounts in later.
+// Student accounts. Created through public/login.html; accounts are optional —
+// reports can still be submitted anonymously or with just a typed name.
 const userSchema = new mongoose.Schema(
   {
     fullName: {

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log in — GubiWatch</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/report.css">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+
+  <header class="radar-bg header-slim">
+    <nav class="site-nav">
+      <div class="wrap">
+        <a href="index.html" class="brand"><span class="brand-dot"></span>GubiWatch <small>ATBU&nbsp;GUBI&nbsp;CAMPUS</small></a>
+        <ul class="nav-links" role="list">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="report.html" class="btn btn-ghost" style="padding:9px 18px;">Report an incident</a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="wrap header-slim-copy">
+      <p class="eyebrow">Student account</p>
+      <h1>Log in or create an account.</h1>
+      <p class="text-muted-light">An account is optional. It lets you attach reports to your name; you can still report anonymously any time.</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="auth-section">
+      <div class="wrap auth-wrap">
+
+        <!-- Shown instead of the forms when someone is already logged in -->
+        <div class="auth-card" id="already-in" hidden>
+          <h2>You're logged in</h2>
+          <p class="text-muted" id="already-in-text"></p>
+          <div class="auth-actions">
+            <a href="report.html" class="btn btn-primary">Report an incident →</a>
+            <button type="button" class="btn btn-outline" id="already-logout">Log out</button>
+          </div>
+        </div>
+
+        <div class="auth-card" id="auth-forms">
+          <div class="auth-tabs" role="tablist" aria-label="Account">
+            <button type="button" role="tab" class="auth-tab is-active" id="tab-login" aria-selected="true" aria-controls="login-form">Log in</button>
+            <button type="button" role="tab" class="auth-tab" id="tab-register" aria-selected="false" aria-controls="register-form">Create account</button>
+          </div>
+
+          <p class="auth-error" id="auth-error" role="alert" hidden></p>
+
+          <!-- ============ Log in ============ -->
+          <form id="login-form" role="tabpanel" aria-labelledby="tab-login" novalidate>
+            <div class="field-group">
+              <label class="field-label" for="login-email">Email</label>
+              <input class="text-input" type="email" id="login-email" autocomplete="email" required>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="login-password">Password</label>
+              <div class="password-wrap">
+                <input class="text-input" type="password" id="login-password" autocomplete="current-password" required>
+                <button type="button" class="show-password" data-target="login-password" aria-label="Show password">Show</button>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Log in</button>
+            <p class="form-note">New here? <a href="login.html?mode=register" id="to-register">Create an account</a>.</p>
+          </form>
+
+          <!-- ============ Create account ============ -->
+          <form id="register-form" role="tabpanel" aria-labelledby="tab-register" novalidate hidden>
+            <div class="field-group">
+              <label class="field-label" for="reg-name">Full name</label>
+              <input class="text-input" type="text" id="reg-name" autocomplete="name" maxlength="100" required>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="reg-email">Email</label>
+              <input class="text-input" type="email" id="reg-email" autocomplete="email" required>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="reg-matric">Matric number <span class="optional">(optional)</span></label>
+              <input class="text-input" type="text" id="reg-matric" maxlength="30" autocomplete="off">
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="reg-password">Password</label>
+              <div class="password-wrap">
+                <input class="text-input" type="password" id="reg-password" autocomplete="new-password" minlength="6" required>
+                <button type="button" class="show-password" data-target="reg-password" aria-label="Show password">Show</button>
+              </div>
+              <p class="field-hint">At least 6 characters.</p>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="reg-confirm">Confirm password</label>
+              <input class="text-input" type="password" id="reg-confirm" autocomplete="new-password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Create account</button>
+            <p class="form-note">Already registered? <a href="login.html" id="to-login">Log in</a>.</p>
+          </form>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer radar-bg">
+    <div class="wrap">
+      <span>GubiWatch — a final year project for ATBU Gubi Campus</span>
+      <span>Built by students, for students</span>
+    </div>
+  </footer>
+
+  <script src="js/auth.js"></script>
+  <script src="js/auth-page.js"></script>
+</body>
+</html>

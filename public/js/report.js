@@ -111,6 +111,30 @@ identityToggle.addEventListener("click", (event) => {
   previewIdentity.textContent = isAnonymous ? "Reported anonymously" : "Reported as myself";
 });
 
+// ---- Account: if logged in, report as the account holder ----
+// The name is filled from the account and locked, so a named report can't be
+// attributed to someone else. Anonymous reports are never linked to the account.
+const authNote = document.getElementById("auth-note");
+
+function applySessionToForm() {
+  const user = GWAuth.getUser();
+  authNote.hidden = false;
+  authNote.textContent = "";
+
+  if (user) {
+    reporterNameInput.value = user.fullName;
+    reporterNameInput.readOnly = true;
+    authNote.textContent = "Logged in as " + user.fullName + ". A named report is linked to your account; an anonymous one is not.";
+  } else {
+    reporterNameInput.readOnly = false;
+    authNote.append("Optional: ");
+    const link = document.createElement("a");
+    link.href = "login.html?next=report.html";
+    link.textContent = "log in or create an account";
+    authNote.append(link, " to link named reports to you.");
+  }
+}
+
 // ---- Pick a popular campus spot: fills in the location and the map coordinates ----
 let autoFilledLocation = "";
 
@@ -215,9 +239,14 @@ form.addEventListener("submit", async (event) => {
   };
 
   try {
+    const headers = { "Content-Type": "application/json" };
+    // Only identify ourselves for named reports; anonymous ones carry no token at all.
+    const token = GWAuth.getToken();
+    if (token && !isAnonymous) headers.Authorization = "Bearer " + token;
+
     const res = await fetch("https://community-policing.onrender.com/api/reports", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify(payload),
     });
 
@@ -239,6 +268,7 @@ form.addEventListener("submit", async (event) => {
 
 reportAnotherBtn.addEventListener("click", () => {
   form.reset();
+  applySessionToForm(); // form.reset() clears the locked name field
   updateCategoryUI();
   updateSeverityUI();
   updateTextPreview();
@@ -248,6 +278,7 @@ reportAnotherBtn.addEventListener("click", () => {
 });
 
 // ---- init ----
+applySessionToForm();
 updateCategoryUI();
 updateSeverityUI();
 updateTextPreview();

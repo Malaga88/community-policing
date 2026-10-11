@@ -8,9 +8,7 @@ function signToken(user) {
 }
 
 // POST /api/auth/register
-// Creates a student account. Not yet called from any page in /public —
-// report.html still takes a typed name for identified reports — but this
-// is what a future login/register page will call.
+// Creates a student account. Called from public/login.html (via js/auth-page.js).
 async function register(req, res, next) {
   try {
     const { fullName, email, password, matricNumber } = req.body;

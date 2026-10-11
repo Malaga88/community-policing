@@ -78,7 +78,9 @@ async function createReport(req, res, next) {
       lat: lat !== undefined && lat !== "" ? Number(lat) : undefined,
       lng: lng !== undefined && lng !== "" ? Number(lng) : undefined,
       isAnonymous: anonymous,
-      reporterName: anonymous ? undefined : reporterName,
+      // A valid login always wins over whatever name was typed, so a named report
+      // can't be attributed to someone else.
+      reporterName: anonymous ? undefined : (req.user ? req.user.fullName : reporterName),
       reportedBy: !anonymous && req.user ? req.user._id : null,
     });
 
