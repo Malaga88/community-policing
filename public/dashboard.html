@@ -84,7 +84,12 @@
         <!-- ============ Map view ============ -->
         <div class="map-panel" id="map-panel">
           <div id="campus-map"></div>
-          <p class="map-note">Marker positions are approximate, generated from placeholder demo coordinates around Gubi Campus. Once the reporting form is connected to a live backend, each pin will reflect the location a student actually submitted.</p>
+          <div class="map-legend">
+            <label class="landmark-switch"><input type="checkbox" id="landmark-toggle" checked> Show campus landmarks</label>
+            <span class="map-legend-item"><span class="legend-pin"></span> Report pin (colour = category)</span>
+            <span class="map-legend-item"><span class="legend-landmark">🏫</span> Campus landmark</span>
+          </div>
+          <p class="map-note">Report pins sit where a student shared their location or picked a campus spot; reports that only name a known landmark are shown near it. Landmark positions are approximate.</p>
         </div>
 
         <!-- ============ List view ============ -->
@@ -107,6 +112,7 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="js/campus-locations.js"></script>
   <script src="js/dashboard.js"></script>
 </body>
 </html>

@@ -23,6 +23,7 @@ const useLocationBtn  = document.getElementById("use-location-btn");
 const locationStatus  = document.getElementById("location-status");
 const latValue        = document.getElementById("lat-value");
 const lngValue        = document.getElementById("lng-value");
+const campusPlaceSelect = document.getElementById("campus-place");
 
 const previewCard     = document.getElementById("preview-card");
 const previewBadge    = document.getElementById("preview-badge");
@@ -99,6 +100,46 @@ identityToggle.addEventListener("click", (event) => {
   previewIdentity.textContent = isAnonymous ? "Reported anonymously" : "Reported as myself";
 });
 
+// ---- Pick a popular campus spot: fills in the location and the map coordinates ----
+let autoFilledLocation = "";
+
+(function populateCampusPlaces() {
+  const byType = {};
+  CAMPUS_LOCATIONS.forEach((lm) => { (byType[lm.type] = byType[lm.type] || []).push(lm); });
+  Object.keys(byType).forEach((type) => {
+    const meta = LANDMARK_TYPE_META[type] || LANDMARK_TYPE_META.other;
+    const group = document.createElement("optgroup");
+    group.label = meta.label;
+    byType[type].forEach((lm) => {
+      const opt = document.createElement("option");
+      opt.value = lm.id;
+      opt.textContent = lm.name;
+      group.appendChild(opt);
+    });
+    campusPlaceSelect.appendChild(group);
+  });
+})();
+
+campusPlaceSelect.addEventListener("change", () => {
+  const lm = CAMPUS_LOCATIONS.find((l) => l.id === campusPlaceSelect.value);
+  if (!lm) {
+    latValue.value = "";
+    lngValue.value = "";
+    locationStatus.hidden = true;
+    return;
+  }
+  latValue.value = lm.lat;
+  lngValue.value = lm.lng;
+  // Fill the text box only if it is empty or still holds our earlier auto-fill,
+  // so we never overwrite details the student typed themselves.
+  if (!locationInput.value.trim() || locationInput.value === autoFilledLocation) {
+    locationInput.value = lm.name;
+    autoFilledLocation = lm.name;
+    updateTextPreview();
+  }
+  showLocationStatus("Pinned near " + lm.name + " on the map. You can add more detail in the box above.", false);
+});
+
 // ---- Capture the reporter's GPS coordinates, so the incident can ----
 // ---- eventually be plotted on the dashboard map at its real spot ----
 useLocationBtn.addEventListener("click", () => {
@@ -113,6 +154,7 @@ useLocationBtn.addEventListener("click", () => {
     (position) => {
       latValue.value = position.coords.latitude;
       lngValue.value = position.coords.longitude;
+      campusPlaceSelect.value = ""; // GPS replaces any campus spot picked earlier
       showLocationStatus(
         "Location captured — this will help place your report accurately on the map.",
         false

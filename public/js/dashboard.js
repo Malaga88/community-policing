@@ -116,6 +116,17 @@ function visibleReports() {
     : REPORTS.filter((r) => r.category === activeFilter);
 }
 
+// Escapes user-supplied text before it is placed into HTML, so a report
+// containing markup (e.g. a <script> tag) is shown as plain text instead of running.
+function escapeHTML(value) {
+  return String(value == null ? "" : value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function timeAgoLabel(minutes) {
   if (minutes < 60) return minutes + " min ago";
   const hours = Math.floor(minutes / 60);
@@ -131,7 +142,7 @@ function reportCardHTML(report) {
   const meta = CATEGORY_META[report.category];
   const identityLabel = report.anonymous
     ? "Reported anonymously"
-    : "Reported by " + report.reporterName;
+    : "Reported by " + escapeHTML(report.reporterName);
 
   return `
     <article class="report-card cat-border-${report.category}" data-category="${report.category}">
@@ -139,12 +150,12 @@ function reportCardHTML(report) {
         <span class="cat-badge cat-${report.category}"><span class="dot"></span>${meta.label}</span>
         <span class="report-card-time">${timeAgoLabel(report.minutesAgo)}</span>
       </div>
-      <p class="report-card-body">${report.description}</p>
+      <p class="report-card-body">${escapeHTML(report.description)}</p>
       <div class="report-card-foot">
-        <span>📍 ${report.location}</span>
+        <span>📍 ${escapeHTML(report.location)}</span>
         <span class="report-card-identity">${identityLabel}</span>
       </div>
-      <span class="report-card-id">${report.id}</span>
+      <span class="report-card-id">${escapeHTML(report.id)}</span>
     </article>
   `;
 }
@@ -179,6 +190,8 @@ function renderStats() {
 // ------------------------------------------------------------
 let campusMap = null;
 let markerLayer = null;
+let landmarkLayer = null;
+const landmarkToggle = document.getElementById("landmark-toggle");
 
 function categoryColor(category) {
   return getComputedStyle(document.documentElement)
@@ -206,38 +219,149 @@ function initMap() {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(campusMap);
 
+  landmarkLayer = L.layerGroup().addTo(campusMap); // added first so report pins sit on top
   markerLayer = L.layerGroup().addTo(campusMap);
+}
+
+// ---- Campus landmarks (popular points from campus-locations.js) ----
+function distanceMetres(aLat, aLng, bLat, bLng) {
+  const R = 6371000, rad = Math.PI / 180;
+  const dLat = (bLat - aLat) * rad, dLng = (bLng - aLng) * rad;
+  const h = Math.sin(dLat / 2) ** 2 +
+            Math.cos(aLat * rad) * Math.cos(bLat * rad) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+function normaliseText(t) {
+  return String(t || "").toLowerCase().replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
+}
+
+// Finds the landmark a typed location refers to (longest matching name/alias wins).
+function findLandmarkByText(text) {
+  const haystack = normaliseText(text);
+  if (!haystack) return null;
+  let best = null, bestLen = 0;
+  CAMPUS_LOCATIONS.forEach((lm) => {
+    [lm.name].concat(lm.aliases || []).forEach((label) => {
+      const needle = normaliseText(label);
+      if (needle.length >= 3 && haystack.includes(needle) && needle.length > bestLen) {
+        best = lm; bestLen = needle.length;
+      }
+    });
+  });
+  return best;
+}
+
+// Works out where each report goes on the map:
+//   1. its own GPS coordinates, if the student shared them;
+//   2. otherwise the landmark named in its location text (approximate);
+//   3. otherwise it is not plotted (it still shows in the list view).
+// Pins that would sit on top of each other (or on a landmark) are spread
+// slightly so every one stays visible and clickable.
+function computeReportPositions(list) {
+  const placed = [];
+  list.forEach((report) => {
+    let lat = report.lat, lng = report.lng, landmark = null;
+    const hasGps = typeof lat === "number" && typeof lng === "number" && !isNaN(lat) && !isNaN(lng);
+    if (!hasGps) {
+      landmark = findLandmarkByText(report.location);
+      if (!landmark) return;
+      lat = landmark.lat; lng = landmark.lng;
+    }
+    placed.push({ report, lat, lng, origLat: lat, origLng: lng, landmark });
+  });
+
+  const key = (la, ln) => la.toFixed(5) + "," + ln.toFixed(5);
+  const landmarkKeys = new Set(CAMPUS_LOCATIONS.map((l) => key(l.lat, l.lng)));
+  const groups = {};
+  placed.forEach((p) => { (groups[key(p.lat, p.lng)] = groups[key(p.lat, p.lng)] || []).push(p); });
+
+  Object.keys(groups).forEach((k) => {
+    const g = groups[k];
+    if (g.length === 1 && !landmarkKeys.has(k)) return;
+    const radius = g.length > 6 ? 0.00018 : 0.00009; // roughly 10 to 20 metres
+    g.forEach((p, i) => {
+      const angle = (2 * Math.PI * i) / g.length + Math.PI / 4;
+      p.lat += radius * Math.sin(angle);
+      p.lng += radius * Math.cos(angle);
+    });
+  });
+  return placed;
+}
+
+function landmarkIcon(type) {
+  const meta = LANDMARK_TYPE_META[type] || LANDMARK_TYPE_META.other;
+  return L.divIcon({
+    className: "",
+    html: `<span class="landmark-pin">${meta.icon}</span>`,
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+    popupAnchor: [0, -14],
+  });
+}
+
+function renderLandmarks(placed) {
+  landmarkLayer.clearLayers();
+  if (landmarkToggle && !landmarkToggle.checked) return;
+
+  CAMPUS_LOCATIONS.forEach((lm) => {
+    const meta = LANDMARK_TYPE_META[lm.type] || LANDMARK_TYPE_META.other;
+    const nearby = placed.filter((p) => distanceMetres(lm.lat, lm.lng, p.origLat, p.origLng) <= 75).length;
+    const countLabel = nearby === 0
+      ? "No reports here yet"
+      : nearby + (nearby === 1 ? " report here" : " reports here");
+
+    L.marker([lm.lat, lm.lng], { icon: landmarkIcon(lm.type), zIndexOffset: -500 })
+      .bindTooltip(escapeHTML(lm.name), { direction: "top", offset: [0, -12] })
+      .bindPopup(`
+        <div class="map-popup-head"><strong>${escapeHTML(lm.name)}</strong></div>
+        <div class="map-popup-foot">
+          <span>${meta.icon} ${escapeHTML(meta.label)} landmark</span>
+          <span>${countLabel}</span>
+        </div>`)
+      .addTo(landmarkLayer);
+  });
 }
 
 function renderMapMarkers() {
   if (!markerLayer) return;
   markerLayer.clearLayers();
 
-  visibleReports().forEach((report) => {
-    if (typeof report.lat !== "number" || typeof report.lng !== "number") return;
+  const placed = computeReportPositions(REPORTS);
+  renderLandmarks(placed);
 
-    const meta = CATEGORY_META[report.category];
-    const identityLabel = report.anonymous
-      ? "Reported anonymously"
-      : "Reported by " + report.reporterName;
+  placed
+    .filter((p) => activeFilter === "all" || p.report.category === activeFilter)
+    .forEach((p) => {
+      const report = p.report;
+      const meta = CATEGORY_META[report.category];
+      const identityLabel = report.anonymous
+        ? "Reported anonymously"
+        : "Reported by " + escapeHTML(report.reporterName);
+      const placedNote = p.landmark
+        ? `<span>📌 Shown near ${escapeHTML(p.landmark.name)} (approximate)</span>`
+        : "";
 
-    const popupHTML = `
-      <div class="map-popup-head">
-        <span class="cat-badge cat-${report.category}"><span class="dot"></span>${meta.label}</span>
-        <span class="map-popup-time">${timeAgoLabel(report.minutesAgo)}</span>
-      </div>
-      <p class="map-popup-body">${report.description}</p>
-      <div class="map-popup-foot">
-        <span>📍 ${report.location}</span>
-        <span>${identityLabel} · ${report.id}</span>
-      </div>
-    `;
+      const popupHTML = `
+        <div class="map-popup-head">
+          <span class="cat-badge cat-${report.category}"><span class="dot"></span>${meta.label}</span>
+          <span class="map-popup-time">${timeAgoLabel(report.minutesAgo)}</span>
+        </div>
+        <p class="map-popup-body">${escapeHTML(report.description)}</p>
+        <div class="map-popup-foot">
+          <span>📍 ${escapeHTML(report.location)}</span>
+          ${placedNote}
+          <span>${identityLabel} · ${escapeHTML(report.id)}</span>
+        </div>
+      `;
 
-    L.marker([report.lat, report.lng], { icon: pinDivIcon(report.category) })
-      .bindPopup(popupHTML)
-      .addTo(markerLayer);
-  });
+      L.marker([p.lat, p.lng], { icon: pinDivIcon(report.category), zIndexOffset: 1000 })
+        .bindPopup(popupHTML)
+        .addTo(markerLayer);
+    });
 }
+
+if (landmarkToggle) landmarkToggle.addEventListener("change", renderMapMarkers);
 
 // ------------------------------------------------------------
 // Filters (drives both the map markers and the list feed)
